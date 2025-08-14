@@ -7,7 +7,7 @@ class Cache {
 
   set(key, value, ttlSeconds = 300) {
     this.cache.set(key, value);
-    this.ttl.set(key, Date.now() + (ttlSeconds * 1000));
+    this.ttl.set(key, Date.now() + ttlSeconds * 1000);
   }
 
   get(key) {
@@ -41,13 +41,13 @@ export const cacheMiddleware = (ttlSeconds = 300) => {
   return (req, res, next) => {
     const key = req.originalUrl;
     const cached = cache.get(key);
-    
+
     if (cached) {
       return res.json(cached);
     }
 
     const originalJson = res.json;
-    res.json = function(data) {
+    res.json = function (data) {
       cache.set(key, data, ttlSeconds);
       originalJson.call(this, data);
     };

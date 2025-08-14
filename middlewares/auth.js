@@ -4,8 +4,8 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import config from '../config/config.js';
 
 export const authenticate = asyncHandler(async (req, res, next) => {
-  const token = req.headers.authorization?.startsWith('Bearer') 
-    ? req.headers.authorization.split(' ')[1] 
+  const token = req.headers.authorization?.startsWith('Bearer')
+    ? req.headers.authorization.split(' ')[1]
     : null;
 
   if (!token) {

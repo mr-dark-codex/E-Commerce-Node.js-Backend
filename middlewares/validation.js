@@ -4,11 +4,13 @@ export const validate = (schema) => {
   return (req, res, next) => {
     const { error, value } = schema.validate(req.body, {
       abortEarly: false,
-      stripUnknown: true
+      stripUnknown: true,
     });
 
     if (error) {
-      const errorMessage = error.details.map(detail => detail.message).join(', ');
+      const errorMessage = error.details
+        .map((detail) => detail.message)
+        .join(', ');
       throw new AppError(errorMessage, 400);
     }
 

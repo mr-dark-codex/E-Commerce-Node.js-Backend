@@ -16,17 +16,14 @@ export class UserRepository {
   async findAll(filter = {}, options = {}) {
     const { page = 1, limit = 10, sort = '-createdAt' } = options;
     const skip = (page - 1) * limit;
-    
-    return await User.find(filter)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit);
+
+    return await User.find(filter).sort(sort).skip(skip).limit(limit);
   }
 
   async update(id, updateData) {
-    return await User.findByIdAndUpdate(id, updateData, { 
-      new: true, 
-      runValidators: true 
+    return await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
     });
   }
 
