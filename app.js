@@ -84,12 +84,13 @@ app.get('/health', (req, res) => {
 
 // Database connection
 if (config.db) {
-  mongoose.connect(config.db)
+  mongoose
+    .connect(config.db)
     .then(() => {
       console.log('📦 Database connected successfully');
       Logger.info('Database connected successfully');
     })
-    .catch(err => {
+    .catch((err) => {
       console.error('❌ Database connection failed:', err.message);
       Logger.error('Database connection failed', { error: err.message });
     });
@@ -177,7 +178,7 @@ app.use((err, req, res, next) => {
     url: req.originalUrl,
     method: req.method,
     ip: req.ip,
-    userId: req.user?.userId
+    userId: req.user?.userId,
   });
 
   // Default error response

@@ -10,14 +10,20 @@ const server = http.createServer(app);
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
   console.error(chalk.red('Uncaught Exception:'), err.message);
-  Logger.error('Uncaught Exception', { message: err.message, stack: err.stack });
+  Logger.error('Uncaught Exception', {
+    message: err.message,
+    stack: err.stack,
+  });
   process.exit(1);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error(chalk.red('Unhandled Rejection:'), err.message);
-  Logger.error('Unhandled Promise Rejection', { message: err.message, stack: err.stack });
+  Logger.error('Unhandled Promise Rejection', {
+    message: err.message,
+    stack: err.stack,
+  });
   server.close(() => {
     process.exit(1);
   });
@@ -43,13 +49,13 @@ server.listen(config.port, () => {
   console.log(chalk.cyan(`🚀 Server running on port ${config.port}`));
   console.log(chalk.cyan(`📍 Environment: ${config.env}`));
   console.log(chalk.cyan(`🌐 URL: http://localhost:${config.port}`));
-  
+
   Logger.info('Server started successfully', {
     port: config.port,
     environment: config.env,
-    url: `http://localhost:${config.port}`
+    url: `http://localhost:${config.port}`,
   });
-  
+
   // Start log cleanup scheduler
   startLogCleanupScheduler();
 });

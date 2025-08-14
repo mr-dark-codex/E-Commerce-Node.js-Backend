@@ -1,5 +1,9 @@
 import { UserRepository } from '../repositories/UserRepository.js';
-import { CreateUserDto, UpdateUserDto, UserResponseDto } from '../dto/UserDto.js';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UserResponseDto,
+} from '../dto/UserDto.js';
 import { AppError } from '../utils/AppError.js';
 import jwt from 'jsonwebtoken';
 import config from '../config/config.js';
@@ -29,12 +33,12 @@ export class UserService {
     const token = jwt.sign(
       { userId: user._id, role: user.role },
       config.jwtSecret,
-      { expiresIn: config.jwtExpiresIn || '7d' }
+      { expiresIn: config.jwtExpiresIn || '7d' },
     );
 
     return {
       user: new UserResponseDto(user),
-      token
+      token,
     };
   }
 
@@ -47,7 +51,10 @@ export class UserService {
   }
 
   async updateUser(id, updateData) {
-    const user = await this.userRepository.update(id, new UpdateUserDto(updateData));
+    const user = await this.userRepository.update(
+      id,
+      new UpdateUserDto(updateData),
+    );
     if (!user) {
       throw new AppError('User not found', 404);
     }

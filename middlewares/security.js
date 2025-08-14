@@ -11,7 +11,7 @@ export const createRateLimit = (windowMs, max, message) => {
     legacyHeaders: false,
     handler: (req, res) => {
       throw new AppError(message, 429);
-    }
+    },
   });
 };
 
@@ -19,13 +19,13 @@ export const createRateLimit = (windowMs, max, message) => {
 export const authLimiter = createRateLimit(
   15 * 60 * 1000, // 15 minutes
   5, // 5 attempts
-  'Too many authentication attempts, please try again later'
+  'Too many authentication attempts, please try again later',
 );
 
 export const apiLimiter = createRateLimit(
   15 * 60 * 1000, // 15 minutes
   100, // 100 requests
-  'Too many requests from this IP'
+  'Too many requests from this IP',
 );
 
 // Input sanitization
@@ -34,7 +34,10 @@ export const sanitizeInput = (req, res, next) => {
   const sanitize = (obj) => {
     for (let key in obj) {
       if (typeof obj[key] === 'string') {
-        obj[key] = obj[key].replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+        obj[key] = obj[key].replace(
+          /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+          '',
+        );
       } else if (typeof obj[key] === 'object') {
         sanitize(obj[key]);
       }
@@ -44,6 +47,6 @@ export const sanitizeInput = (req, res, next) => {
   if (req.body) sanitize(req.body);
   if (req.query) sanitize(req.query);
   if (req.params) sanitize(req.params);
-  
+
   next();
 };

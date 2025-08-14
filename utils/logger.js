@@ -13,7 +13,7 @@ if (!fs.existsSync(logsDir)) {
 const fileFormat = winston.format.combine(
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
   winston.format.errors({ stack: true }),
-  winston.format.json()
+  winston.format.json(),
 );
 
 // Custom format for console logging
@@ -22,7 +22,7 @@ const consoleFormat = winston.format.combine(
   winston.format.timestamp({ format: 'HH:mm:ss' }),
   winston.format.printf(({ timestamp, level, message, ...meta }) => {
     return `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta, null, 2) : ''}`;
-  })
+  }),
 );
 
 // Create Winston logger
@@ -32,21 +32,27 @@ const logger = winston.createLogger({
   transports: [
     // Console transport
     new winston.transports.Console({
-      format: consoleFormat
+      format: consoleFormat,
     }),
-    
+
     // Daily rotating file for all logs
     new winston.transports.File({
-      filename: path.join(logsDir, `app-${new Date().toISOString().split('T')[0]}.log`),
-      level: 'info'
+      filename: path.join(
+        logsDir,
+        `app-${new Date().toISOString().split('T')[0]}.log`,
+      ),
+      level: 'info',
     }),
-    
+
     // Daily rotating file for errors only
     new winston.transports.File({
-      filename: path.join(logsDir, `error-${new Date().toISOString().split('T')[0]}.log`),
-      level: 'error'
-    })
-  ]
+      filename: path.join(
+        logsDir,
+        `error-${new Date().toISOString().split('T')[0]}.log`,
+      ),
+      level: 'error',
+    }),
+  ],
 });
 
 // MongoDB transport function
@@ -57,7 +63,7 @@ const saveToMongoDB = async (level, message, meta = {}) => {
       message,
       meta,
       timestamp: new Date(),
-      source: 'backend'
+      source: 'backend',
     });
   } catch (error) {
     // Fallback to console if MongoDB fails
@@ -71,17 +77,17 @@ export const Logger = {
     logger.info(message, meta);
     saveToMongoDB('info', message, meta);
   },
-  
+
   warn: (message, meta = {}) => {
     logger.warn(message, meta);
     saveToMongoDB('warn', message, meta);
   },
-  
+
   error: (message, meta = {}) => {
     logger.error(message, meta);
     saveToMongoDB('error', message, meta);
   },
-  
+
   debug: (message, meta = {}) => {
     logger.debug(message, meta);
     saveToMongoDB('debug', message, meta);
@@ -96,17 +102,17 @@ export const Logger = {
       userAgent: req.get('User-Agent'),
       statusCode: res.statusCode,
       responseTime,
-      userId: req.user?.userId
+      userId: req.user?.userId,
     };
-    
+
     const message = `${req.method} ${req.originalUrl} - ${res.statusCode} - ${responseTime}ms`;
-    
+
     if (res.statusCode >= 400) {
       Logger.error(message, logData);
     } else {
       Logger.info(message, logData);
     }
-  }
+  },
 };
 
 export default Logger;

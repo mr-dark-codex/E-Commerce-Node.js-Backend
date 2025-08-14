@@ -8,7 +8,7 @@ export const healthCheck = async (req, res) => {
     uptime: process.uptime(),
     environment: process.env.NODE_ENV,
     version: process.env.npm_package_version || '1.0.0',
-    services: {}
+    services: {},
   };
 
   // Database health
@@ -28,9 +28,11 @@ export const healthCheck = async (req, res) => {
   const memUsage = process.memoryUsage();
   health.memory = {
     used: Math.round(memUsage.heapUsed / 1024 / 1024) + ' MB',
-    total: Math.round(memUsage.heapTotal / 1024 / 1024) + ' MB'
+    total: Math.round(memUsage.heapTotal / 1024 / 1024) + ' MB',
   };
 
   const statusCode = health.status === 'OK' ? 200 : 503;
-  res.status(statusCode).json(new ApiResponse(statusCode, health, 'Health check completed'));
+  res
+    .status(statusCode)
+    .json(new ApiResponse(statusCode, health, 'Health check completed'));
 };
