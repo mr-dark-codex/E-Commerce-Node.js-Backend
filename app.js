@@ -84,6 +84,7 @@ app.get('/health', (req, res) => {
   });
 });
 
+<<<<<<< HEAD
 // // Database connection
 // if (config.db) {
 //   mongoose
@@ -115,6 +116,21 @@ connectDB()
     // Use console.error instead of Logger to avoid MongoDB dependency
     process.exit(1);
   });
+=======
+// Database connection
+if (config.db) {
+  mongoose
+    .connect(config.db)
+    .then(() => {
+      console.log('📦 Database connected successfully');
+      Logger.info('Database connected successfully');
+    })
+    .catch((err) => {
+      console.error('❌ Database connection failed:', err.message);
+      Logger.error('Database connection failed', { error: err.message });
+    });
+}
+>>>>>>> 60eb885646de76b8f5b3d00134c581cf52d6ad6f
 
 // API routes
 app.use('/api/v1', apiRoutes);
@@ -139,6 +155,7 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
+<<<<<<< HEAD
   // Logger.error('Application error', {
   //   message: err.message,
   //   stack: err.stack,
@@ -147,6 +164,16 @@ app.use((err, req, res, next) => {
   //   ip: req.ip,
   //   userId: req.user?.userId,
   // });
+=======
+  Logger.error('Application error', {
+    message: err.message,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    userId: req.user?.userId,
+  });
+>>>>>>> 60eb885646de76b8f5b3d00134c581cf52d6ad6f
 
   // Default error response
   let error = {

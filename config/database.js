@@ -14,21 +14,13 @@ const connectDB = async (retries = 5) => {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      readPreference: 'primary',
+      bufferCommands: false,
+      bufferMaxEntries: 0
     });
 
-    // Secondary connection (reads) - use same URI but different read preference
-    readConnection = await mongoose.createConnection(config.db, {
-      maxPoolSize: 20, // More connections for reads
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-      readPreference: 'secondaryPreferred',
-    });
-
-    Logger.info('Database connections established successfully', {
-      writeHost: writeConnection.connection.host,
-      readHost: readConnection.host,
-      dbName: writeConnection.connection.name,
+    Logger.info('Database connected successfully', {
+      host: conn.connection.host,
+      name: conn.connection.name
     });
 
     return { writeConnection, readConnection };
@@ -39,11 +31,8 @@ const connectDB = async (retries = 5) => {
     });
 
     if (retries > 0) {
-      Logger.info(
-        `Retrying database connection in 5 seconds... (${retries} attempts left)`,
-      );
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      return connectDB(retries - 1);
+      Logger.info(`Retrying database connection in 5 seconds... (${retries} attempts left)`);
+      setTimeout(() => connectDB(retries - 1), 5000);
     } else {
       throw new Error(
         `Database connection failed after ${5 - retries + 1} attempts`,
