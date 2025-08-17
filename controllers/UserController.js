@@ -1,6 +1,7 @@
-import { UserService } from '../services/UserService.js';
+// import { UserService } from '../services/UserService.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import UserService from '../examples/userServiceExample.js';
 
 export class UserController {
   constructor() {
@@ -39,5 +40,22 @@ export class UserController {
     res
       .status(200)
       .json(new ApiResponse(200, result, 'Account deleted successfully'));
+  });
+
+  create = asyncHandler(async (req, res) => {
+    const result = await this.userService.createUser(req.body);
+    res
+      .status(200)
+      .json(new ApiResponse(200, result, 'Account created successfully'));
+  });
+
+  getAllUsers = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 5 } = req.query;
+    console.log(req.query);
+    
+    const users = await this.userService.getAllUsers({}, { page, limit });
+    res
+      .status(200)
+      .json(new ApiResponse(200, users, 'Users retrieved successfully'));
   });
 }

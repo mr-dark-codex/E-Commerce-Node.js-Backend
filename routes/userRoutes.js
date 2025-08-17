@@ -11,6 +11,8 @@ import {
 const router = express.Router();
 const userController = new UserController();
 
+router.post('/create', userController.create);
+router.get('/allUsers', userController.getAllUsers);
 // Public routes
 router.post('/register', validate(createUserSchema), userController.register);
 router.post('/login', validate(loginSchema), userController.login);

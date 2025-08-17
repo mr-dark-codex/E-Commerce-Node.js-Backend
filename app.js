@@ -10,6 +10,7 @@ import apiRoutes from './routes/index.js';
 import { AppError } from './utils/AppError.js';
 import Logger from './utils/logger.js';
 import { requestLogger } from './middlewares/requestLogger.js';
+import connectDB from './config/database.js';
 
 const app = express();
 
@@ -53,24 +54,25 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
 app.use('/api', limiter);
 
 // Compression middleware
 app.use(compression());
 
-// Logging middleware
-if (config.env === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
+// // Logging middleware
+// if (config.env === 'development') {
+//   app.use(morgan('dev'));
+// } else {
+//   app.use(morgan('combined'));
+// }
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Request logging middleware
-app.use(requestLogger);
+// app.use(requestLogger);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -82,19 +84,37 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Database connection
-if (config.db) {
-  mongoose
-    .connect(config.db)
-    .then(() => {
-      console.log('📦 Database connected successfully');
-      Logger.info('Database connected successfully');
-    })
-    .catch((err) => {
-      console.error('❌ Database connection failed:', err.message);
-      Logger.error('Database connection failed', { error: err.message });
-    });
-}
+// // Database connection
+// if (config.db) {
+//   mongoose
+//     .connect(config.db)
+//     .then(() => {
+//       console.log('📦 Database connected successfully');
+//       Logger.info('Database connected successfully');
+//     })
+//     .catch((err) => {
+//       console.error('❌ Database connection failed:', err.message);
+//       Logger.error('Database connection failed', { error: err.message });
+//     });
+// }
+
+// Initialize database connection
+let dbConnected = false;
+
+connectDB()
+  .then(({ writeConnection, readConnection }) => {
+    console.log('📦 Database connections established successfully');
+    console.log('✍️  Write connection (Primary): Ready');
+    console.log('📖 Read connection (Secondary Preferred): Ready');
+    dbConnected = true;
+    // Only log to MongoDB after connection is established
+    Logger.info('Database replica connections established successfully');
+  })
+  .catch((err) => {
+    console.error('❌ Database connection failed:', err.message);
+    // Use console.error instead of Logger to avoid MongoDB dependency
+    process.exit(1);
+  });
 
 // API routes
 app.use('/api/v1', apiRoutes);
@@ -108,59 +128,6 @@ app.get('/api/v1', (req, res) => {
   });
 });
 
-// Sample error routes for testing error handlers
-app.get('/api/test/sync-error', (req, res) => {
-  // This will trigger the global error handler
-  throw new Error('This is a synchronous error for testing');
-});
-
-app.get('/api/test/async-error', async (req, res) => {
-  // This will trigger the global error handler
-  throw new Error('This is an async error for testing');
-});
-
-app.get('/api/test/promise-rejection', (req, res) => {
-  // This will trigger unhandledRejection in server.js
-  Promise.reject(new Error('Unhandled promise rejection'));
-  res.json({ message: 'This response will never be sent' });
-});
-
-app.get('/api/test/uncaught-exception', (req, res) => {
-  // This will trigger uncaughtException in server.js
-  setTimeout(() => {
-    throw new Error('Uncaught exception from setTimeout');
-  }, 100);
-  res.json({ message: 'Response sent, but error will occur after' });
-});
-
-app.get('/api/test/validation-error', (req, res) => {
-  // This will trigger ValidationError handling
-  const error = new Error('Invalid input data');
-  error.name = 'ValidationError';
-  throw error;
-});
-
-app.get('/api/test/cast-error', (req, res) => {
-  // This will trigger CastError handling
-  const error = new Error('Invalid ObjectId format');
-  error.name = 'CastError';
-  throw error;
-});
-
-app.get('/api/test/duplicate-error', (req, res) => {
-  // This will trigger duplicate field error handling
-  const error = new Error('Duplicate key error');
-  error.code = 11000;
-  throw error;
-});
-
-app.get('/api/test/custom-status', (req, res) => {
-  // This will trigger custom status code error
-  const error = new Error('Custom error with status code');
-  error.statusCode = 422;
-  throw error;
-});
-
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({
@@ -172,14 +139,14 @@ app.use('*', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  Logger.error('Application error', {
-    message: err.message,
-    stack: err.stack,
-    url: req.originalUrl,
-    method: req.method,
-    ip: req.ip,
-    userId: req.user?.userId,
-  });
+  // Logger.error('Application error', {
+  //   message: err.message,
+  //   stack: err.stack,
+  //   url: req.originalUrl,
+  //   method: req.method,
+  //   ip: req.ip,
+  //   userId: req.user?.userId,
+  // });
 
   // Default error response
   let error = {

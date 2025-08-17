@@ -57,7 +57,7 @@ server.listen(config.port, () => {
   });
 
   // Start log cleanup scheduler
-  startLogCleanupScheduler();
+  // startLogCleanupScheduler();
 });
 
 // Handle server errors

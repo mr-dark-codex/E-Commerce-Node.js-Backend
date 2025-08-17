@@ -7,7 +7,7 @@ const logController = new LogController();
 
 // All log routes require admin access
 router.use(authenticate);
-router.use(authorize('admin'));
+router.use(authorize('user'));
 
 router.get('/', logController.getLogs);
 router.get('/stats', logController.getLogStats);

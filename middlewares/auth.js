@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import { AppError } from '../utils/AppError.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import config from '../config/config.js';
+import Logger from '../utils/logger.js';
+import chalk from 'chalk';
 
 export const authenticate = asyncHandler(async (req, res, next) => {
   const token = req.headers.authorization?.startsWith('Bearer')
@@ -23,6 +25,9 @@ export const authenticate = asyncHandler(async (req, res, next) => {
 
 export const authorize = (...roles) => {
   return (req, res, next) => {
+    // console.log(chalk.red('roles = ', roles));
+    // console.log(chalk.red('req.user = ', req.user.role));
+
     if (!roles.includes(req.user.role)) {
       throw new AppError('Access denied. Insufficient permissions', 403);
     }
